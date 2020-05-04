@@ -1,0 +1,205 @@
+openapi: 3.0.1
+info:
+  title: No Wait API
+  description: API for No Wait System
+  version: "1.0"
+servers:
+- url: https://next-gps.site:8080
+  variables: {}
+paths:
+  /no-wait/v1/activities/out:
+    post:
+      tags:
+      - ActivitiyLogAPI
+      summary: Logs a leave event for the specified user
+      description: Manual post method used to register when an user is getting out
+        from a business. <br/><b>This is a temporary endpoint</b>
+      operationId: addOut
+      parameters:
+      - name: user
+        in: query
+        description: Specifies the id of the user that get out the business
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: business
+        in: query
+        description: Specifies the id of the identified business
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /no-wait/v1/activities/in:
+    post:
+      tags:
+      - ActivitiyLogAPI
+      summary: Logs an access event for the specified user
+      description: Manual post method used to register when an user is getting into
+        a business. <br/><b>This is a temporary endpoint</b>
+      operationId: addIn
+      parameters:
+      - name: user
+        in: query
+        description: Specifies the id of the user that get into the business
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: business
+        in: query
+        description: Specifies the id of the identified business
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /no-wait/v1/businesses:
+    get:
+      tags:
+      - BusinessAPI
+      summary: Find Businesses by query params
+      description: Get method based on Google Maps parameters, all businesses nearby
+        with a defined location and radius and the parameters type and keyword.
+      operationId: getBusinesses
+      parameters:
+      - name: lat
+        in: query
+        description: Latitude parameter to find businesses
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: lng
+        in: query
+        description: Longitude parameter to find businesses
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: radius
+        in: query
+        description: Specifies the radius area to make a query, this value must be
+          in meters, default value is 1000m
+        schema:
+          type: number
+          format: double
+      - name: types
+        in: query
+        description: Specifies the type of place to find.<br/> To see all posible
+          values, please check <a href="https://developers.google.com/places/web-service/supported_types?hl=es-419">https://developers.google.com/places/web-service/supported_types?hl=es-419</a>
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: keyword
+        in: query
+        description: Specifies the term to be matched against all content that Google
+          has indexed for this place, including but not limited to name, type, and
+          address.
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Business'
+  /no-wait/v1/users:
+    get:
+      tags:
+      - UserAPI
+      summary: Find all users
+      description: Get method that returns all users stored in the system.
+      operationId: getUsers
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+      - UserAPI
+      summary: Creates an user in the system
+      description: Post method to save an user into the system with the minimum information.
+      operationId: createUser
+      requestBody:
+        description: User object to create
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    Business:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+        occupancy:
+          type: integer
+          format: int32
+        googlePlace:
+          $ref: '#/components/schemas/Google'
+      description: Represents the business (results the mix between DB object and
+        Google Maps).
+    Google:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        formattedAddress:
+          type: string
+        vicinity:
+          type: string
+        icon:
+          type: string
+        url:
+          type: string
+      description: Contains the relevant information returned by Google Maps.
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        device:
+          type: string
+      description: Represents the user information that has been stored to identify
+        an user.
