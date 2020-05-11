@@ -67,21 +67,21 @@ paths:
     get:
       tags:
         - BusinessAPI
-      summary: Find Businesses by query params
+      summary: Find Businesses by query parameters.
       description: Get method based on Google Maps parameters, all businesses nearby
         with a defined location and radius and the parameters type and keyword.
       operationId: getBusinesses
       parameters:
         - name: lat
           in: query
-          description: Latitude parameter to find businesses
+          description: Latitude parameter to find businesses.
           required: true
           schema:
             type: number
             format: double
         - name: lng
           in: query
-          description: Longitude parameter to find businesses
+          description: Longitude parameter to find businesses.
           required: true
           schema:
             type: number
@@ -89,19 +89,17 @@ paths:
         - name: radius
           in: query
           description: Specifies the radius area to make a query, this value must be
-            in meters, default value is 1000m
+            in meters, default value is 1000 m.
           schema:
             type: number
             format: double
         - name: types
           in: query
-          description: Specifies the type of place to find.<br/> To see all posible
-            values, please check <a href="https://developers.google.com/places/web-service/supported_types?hl=es-419">https://developers.google.com/places/web-service/supported_types?hl=es-419</a>
+          description: Types of places <b>separated by comma</b>.<br/> To see all possible
+            values, please check <a href="https://developers.google.com/places/web-service/supported_types?hl=es-419">https://developers.google.com/places/web-service/supported_types?hl=es-419</a>.
           required: true
           schema:
-            type: array
-            items:
-              type: string
+            type: string
         - name: keyword
           in: query
           description: Specifies the term to be matched against all content that Google
@@ -118,6 +116,49 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Business'
+  /no-wait/v1/locations:
+    get:
+      tags:
+        - LocationAPI
+      summary: Calculates if user is within geofence surrounding the business.
+      description: Calculates if user is within geofence surrounding the business.
+      operationId: calculateDistance
+      parameters:
+        - name: user.lat
+          in: query
+          description: Current user's latitude.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: user.lng
+          in: query
+          description: Current user's longitude.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: business.lat
+          in: query
+          description: Business latitude.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: business.lng
+          in: query
+          description: longitude longitude.
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: boolean
   /no-wait/v1/users:
     get:
       tags:
@@ -197,6 +238,16 @@ components:
           items:
             type: string
       description: Contains the relevant information returned by Google Maps.
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+      description: Represents the current user's location.
     User:
       type: object
       properties:
@@ -205,5 +256,7 @@ components:
           format: int32
         device:
           type: string
+        location:
+          $ref: '#/components/schemas/Location'
       description: Represents the user information that has been stored to identify
         an user.
